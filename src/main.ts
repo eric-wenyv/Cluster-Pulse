@@ -380,26 +380,20 @@ class ClusterPulseApp {
         </header>
 
         <section id="overview" class="hero">
-          <div class="hero-copy">
-            <div class="hero-intro">
-              <div class="eyebrow">Alibaba 2018 Trace</div>
-              <h1>When does the cluster feel pressure?</h1>
-              <p>
-                Cluster Pulse 聚焦机器级资源热点，回答生产集群里 CPU、内存、网络与磁盘压力何时抬头，
-                热点是否集中在某些故障域，以及单台机器在 8 天周期里的行为曲线如何变化。
-              </p>
-            </div>
-            <div class="hero-cta">
-              <a href="#pulse">进入主图</a>
-              <a href="#methodology">阅读方法说明</a>
-            </div>
-            <div class="summary-ribbon-grid" id="summary-ribbons"></div>
+          <div class="eyebrow">Alibaba 2018 Trace</div>
+          <h1>When does the cluster feel pressure?</h1>
+          <p class="hero-lead">
+            Cluster Pulse 聚焦机器级资源热点，回答生产集群里 CPU、内存、网络与磁盘压力何时抬头，
+            热点是否集中在某些故障域，以及单台机器在 8 天周期里的行为曲线如何变化。
+          </p>
+          <div class="hero-cta">
+            <a href="#pulse">进入主图</a>
+            <a href="#methodology">阅读方法说明</a>
           </div>
-          <aside class="hero-panel">
-            <div class="hero-stats" id="hero-stats"></div>
-            <div class="hero-findings" id="hero-findings"></div>
-            <div class="highlight-list" id="hero-highlights"></div>
-          </aside>
+          <div class="hero-stats hero-meta" id="hero-stats"></div>
+          <div class="hero-findings" id="hero-findings"></div>
+          <div class="summary-ribbon-grid" id="summary-ribbons"></div>
+          <div class="article-links" id="hero-highlights"></div>
         </section>
 
         <section id="pulse" class="section">
@@ -542,7 +536,7 @@ class ClusterPulseApp {
               这部分直接对应课程作业文档要求：研究问题、设计权衡、外部引用与开发流程都写在页面里，而不是单独丢在 README。
             </p>
           </div>
-          <div class="method-grid" id="method-grid"></div>
+          <article class="method-article" id="method-grid"></article>
         </section>
       </div>
     `;
@@ -921,33 +915,19 @@ class ClusterPulseApp {
         value: this.data.manifest.subsetMode === 'sample' ? '真实子集' : '全量聚合'
       }
     ]
-      .map(
-        (item) => `
-          <div class="stat-card">
-            <span class="label">${item.label}</span>
-            <div class="value">${item.value}</div>
-          </div>
-        `
-      )
+      .map((item) => `<span class="hero-stat"><span class="label">${item.label}</span>${item.value}</span>`)
       .join('');
 
     heroFindings.innerHTML = this.data.hotspots.findings
       .map(
-        (finding, index) => `
-          <div class="finding-card">
-            <span class="label">Finding ${index + 1}</span>
-            <p>${finding}</p>
-          </div>
-        `
+        (finding, index) => `<p><span class="inline-label">发现 ${index + 1}</span>${finding}</p>`
       )
       .join('');
 
     if (leadHighlight) {
       heroHighlights.innerHTML = `
-        <a class="highlight-card" href="#pulse" data-hotspot-id="${leadHighlight.id}">
-          <span class="label">Jump to annotated hotspot</span>
-          <strong>${leadHighlight.title}</strong>
-          <p>${leadHighlight.summary}</p>
+        <a class="annotation-link" href="#pulse" data-hotspot-id="${leadHighlight.id}">
+          从 ${leadHighlight.title} 开始：${leadHighlight.summary}
         </a>
       `;
     }
@@ -1793,60 +1773,44 @@ class ClusterPulseApp {
   }
 
   private renderMethodology(): void {
-    const container = this.root.querySelector<HTMLDivElement>('#method-grid');
+    const container = this.root.querySelector<HTMLElement>('#method-grid');
     if (!container) {
       return;
     }
 
     const leadHighlight = this.data.hotspots.highlights[0];
-    const questions = `
+    container.innerHTML = `
       <h3>研究问题</h3>
       <p>
         这个可视化围绕一个窄而明确的问题展开：在 8 天生产 trace 里，资源热点出现在哪些时间窗、集中在哪些故障域，
         单台机器是短时冲高还是持续承压。相较于把所有表一起堆进界面，这里先把 machine 级 story 做深。
       </p>
-      <ul>
-        <li>主图用机器 × 时间热力图回答“何时、在哪”。</li>
-        <li>散点图与故障域条形图回答“热点是否成簇”。</li>
-        <li>小多图回答“单机画像究竟像什么”。</li>
-      </ul>
-    `;
-
-    const design = `
+      <p>
+        主图回答“何时、在哪”，中段的散点图与故障域条形图回答“热点是否成簇”，下方单机曲线则回答
+        “被选中的机器究竟是短峰值、持续压力，还是跨指标联动”。
+      </p>
       <h3>设计决策</h3>
       <p>
-        参考 MBTA Viz 的叙事结构，但编码换成更适合集群运维语境的热力图 + 联动分析。没有使用 treemap 或 force layout，
-        因为它们不利于保留精确时间轴和故障域排序。
+        页面结构参考 MBTA Viz 的长文阅读方式：先用开篇段落定义问题，再把解释文字放在图表之间与结尾，而不是把所有说明都塞进卡片。
+        视觉编码仍然选择热力图与联动分析，是因为它们更适合保留精确时间轴和故障域排序。
       </p>
-      <ul>
-        <li>时间刷选优先于多级菜单，让探索路径保持“先全局后局部”。</li>
-        <li>点大小映射窗口峰值，而不是总和，确保异常冲高不会被均值吞掉。</li>
-        <li>故障域点击成为全局过滤器，帮助判断热点是否局部集中。</li>
-      </ul>
-    `;
-
-    const sources = `
+      <p>
+        交互上保留直接拖拽与点击，让探索路径保持“先全局、再聚焦、再解释”的顺序。时间刷选、故障域过滤和机器选择都作用于同一组视图，
+        这样用户不需要在多级菜单之间来回切换。
+      </p>
       <h3>数据与开发流程</h3>
       <p>
         页面部署的是静态聚合结果；真实原始数据通过脚本下载与处理。当前产物优先保证 GitHub Pages 可直接部署，
-        并保留 full 与 sample 两条数据路径。
+        并保留 full 与 sample 两条数据路径。${leadHighlight ? `页面默认聚焦 ${leadHighlight.title}。` : '页面默认展示全局最强热点窗口。'}
       </p>
-      <div class="source-list">
+      <p class="source-inline">
+        参考资料：
         <a href="${this.data.manifest.sources.assignmentUrl}" target="_blank" rel="noreferrer">课程作业要求</a>
+        <span> / </span>
         <a href="${this.data.manifest.sources.datasetDocsUrl}" target="_blank" rel="noreferrer">Alibaba trace 文档</a>
+        <span> / </span>
         <a href="${this.data.manifest.sources.datasetSchemaUrl}" target="_blank" rel="noreferrer">Alibaba schema</a>
-      </div>
-      <ul>
-        <li>开发拆为三段：下载与清洗脚本、静态聚合、前端联动实现。</li>
-        <li>预计原型工时约 12 到 16 小时，最耗时环节是流式数据处理与交互联动调优。</li>
-        <li>${leadHighlight ? `当前页面默认聚焦 ${leadHighlight.title}。` : '页面默认展示全局最强热点窗口。'}</li>
-      </ul>
-    `;
-
-    container.innerHTML = `
-      <article class="method-card">${questions}</article>
-      <article class="method-card">${design}</article>
-      <article class="method-card">${sources}</article>
+      </p>
     `;
   }
 
