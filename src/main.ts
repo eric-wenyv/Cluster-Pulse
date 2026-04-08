@@ -1841,7 +1841,7 @@ class ClusterPulseApp {
       <p>
         这个可视化围绕一个具体而可检验的问题展开：在 Alibaba 2018 集群的 8 天 ${renderTerm('trace', TERM_EXPLANATIONS.trace)} 中，CPU、内存、网络与磁盘压力何时出现，
         热点是零散分布在少数机器上，还是集中在某些${renderTerm('故障域', TERM_EXPLANATIONS.failureDomain)}中，以及被选中的机器在完整周期里究竟表现为短时尖峰、持续高负载，
-        还是多种资源同时抬升。页面没有试图同时覆盖容器、批处理任务与调度 ${renderTerm('DAG', TERM_EXPLANATIONS.dag)}，而是先把机器级资源热点这一条分析链讲清楚。
+        还是多种资源同时抬升。
       </p>
       <p>
         因此，主热力图负责回答“热点发生在什么时候、落在哪些机器上”，中段的散点图与故障域条形图负责回答“当前窗口里的热点是否集中成簇”，
@@ -1850,8 +1850,7 @@ class ClusterPulseApp {
       <h3>设计决策依据、替代方案与最终取舍</h3>
       <p>
         页面结构采用文章式布局，先提出问题，再进入图表，最后在页面结尾集中交代方法说明。这一结构参考了 ${renderTerm('MBTA Viz', TERM_EXPLANATIONS.mbtaViz)} 的长文式可视化组织方式，
-        因为本项目更像一篇带交互的分析文章，而不是一组可以独立阅读的监控卡片。相比把文字解释全部塞进侧栏或提示框，段落式说明更适合交代研究问题、
-        设计理由和外部引用，也更符合课程要求中“说明文档可与作品置于同一页面”的提交方式。
+        因为本项目更像一篇带交互的分析文章，而不是一组可以独立阅读的监控卡片。
       </p>
       <p>
         主图最终选择热力图，而没有采用多折线、堆叠面积图或汇总柱图。原因是这个任务必须同时保留连续时间轴和按故障域排序后的机器分布；
@@ -1867,8 +1866,7 @@ class ClusterPulseApp {
       <h3>外部资源引用</h3>
       <p>
         数据源来自 Alibaba Cluster Trace 2018，本项目实际使用的是其中的 ${renderTerm('machine_meta', TERM_EXPLANATIONS.machineMeta)} 与 ${renderTerm('machine_usage', TERM_EXPLANATIONS.machineUsage)} 两张表。页面中的静态数据并非手工构造示例，
-        而是由脚本下载原始数据后按 15 分钟时间窗聚合生成，再部署到 ${renderTerm('GitHub Pages', TERM_EXPLANATIONS.githubPages)}。除数据源外，页面的叙事结构和长文式排版参考了 ${renderTerm('MBTA Viz', TERM_EXPLANATIONS.mbtaViz)}；
-        本项目没有直接复用其代码和图形，而是借用了其“以文章节奏组织交互可视化”的写法。
+        而是由脚本下载原始数据后按 15 分钟时间窗聚合生成，再部署到 ${renderTerm('GitHub Pages', TERM_EXPLANATIONS.githubPages)}。
       </p>
       <p class="source-inline">
         参考资料：
@@ -1889,7 +1887,7 @@ class ClusterPulseApp {
       </p>
       <p>
         开发过程前期主要时间投入在数据管线和指标定义上，例如如何处理缺失值、如何定义热点、如何在 ${renderTerm('sample', TERM_EXPLANATIONS.sample)} 与 ${renderTerm('full', TERM_EXPLANATIONS.full)} 两种模式之间共享统一输出接口。
-        中后期则主要花在交互和版式迭代，包括主图框选、故障域过滤、单机曲线联动，以及把页面从仪表盘式布局收敛成文章式结构。回头看，最关键的取舍
+        中后期则主要花在交互和版式迭代，包括主图框选、故障域过滤，以及把页面从仪表盘式布局收敛成文章式结构。回头看，最关键的取舍
         是先缩小问题范围，只做机器级资源热点，而不是把容器、批处理任务和调度关系同时塞进一个页面里；这个取舍让页面能够围绕同一个问题形成完整叙事，
         也让说明文档与图表之间保持一一对应。
       </p>

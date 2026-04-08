@@ -479,21 +479,11 @@ def build_hotspots_payload(
         if len(highlight_records) == 4:
             break
 
-    top_domain = max(
-        (machine for machine in machines_payload),
-        key=lambda machine: machine["globalPeakScore"],
-        default=None,
-    )
-
     findings = []
     if highlight_records:
         first = highlight_records[0]
         findings.append(
             f"最强热点出现在 {format_time_range(first['startBin'], first['endBin'], bin_seconds)}，机器 {first['machineId']} 的 {METRIC_LABELS[first['metricId']]} 峰值达到 {first['peakValue']}。"
-        )
-    if top_domain:
-        findings.append(
-            f"全局最显著的机器热点来自故障域 FD-{top_domain['failureDomain1']}，峰值指标为 {METRIC_LABELS[top_domain['globalPeakMetric']]}。"
         )
 
     return {"highlights": highlight_records, "findings": findings}
